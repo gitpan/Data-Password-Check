@@ -1,0 +1,11 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Data-Password-Check.t
+t/Data-Password-Check_repeated.t
+t/Data-Data-Password-Check.t
+t/Data-Password-Check_length.t
+t/Data-Password-Check_silly.t
+lib/Data/Password/Check.pm
+META.yml                                 Module meta-data (added by MakeMaker)
