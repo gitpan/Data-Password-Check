@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ Basic use of the module is as follows:
   if ($pwcheck->has_errors) {
     # print the errors
       print(
-       join("\n", @{ $result->error_list }),
+       join("\n", @{ $pwcheck->error_list }),
        "\n"
       );
   }
@@ -52,7 +52,26 @@ the $options hash-reference - a password:
   $result = Data::Password::Check->check({'password' => $pwd_to_check});
 
 There are other options that may be passed to invoke further password tests if
-required.
+required:
+
+=over 4
+
+=item * tests
+
+set this to a list of test names to replace the list of tests performed by the module
+
+e.g. tests =E<gt> [ 'length' ] will make the module perfoem the length check only
+
+=item * tests_append
+
+set this to a list of additional tests to perform. This is useful if you want
+to call more tests than are in the default list, or to include your own tests
+when inheriting from this module.
+
+e.g. test =E<gt> [ 'mytest1', 'mytest2' ] will make the module perform two
+extra tests (assuming they exist) mytest1 and mytest2.
+
+=back
 
 =cut
 sub check($$) {
@@ -131,6 +150,38 @@ when calling check(). e.g.
 
 =cut
 
+=head2 alphanumeric_only
+
+Make sure the password only contains a-z, A-Z and 0-9 characters.
+
+=cut
+sub _check_alphanumeric_only($) {
+	my ($self) = @_;
+
+	# make sure the password only contains alphanumeric characters
+	unless ($self->{'password'} =~ /^[[:alnum:]]+$/) {
+		$self->_add_error("Your password may only contain alphanumeric characters (A-Z, a-z and 0-9)");
+	}
+}
+
+=head2 alphanumeric
+
+Make sure the password contains one of each from the following sets: a-z, A-Z and 0-9
+
+=cut
+sub _check_alphanumeric($) {
+	my ($self) = @_;
+
+	# make sure the password contains one lower case and one uppercase character, and one digit - at least
+	# tr// seems the best way (at the moment) to check this requirement
+	unless (
+		($self->{'password'} =~ tr/a-z//) and
+		($self->{'password'} =~ tr/A-Z//) and
+		($self->{'password'} =~ tr/0-9//) ) {
+		$self->_add_error("Your password must contain mixed-case letters and numbers");
+	}
+}
+
 =head2 length
 
 Make sure the password it at least 6 characters long. If B<min_length> was passed
@@ -174,6 +225,20 @@ sub _check_length($) {
 	else {
 		# store a failure message
 		$self->_add_error("The password must be at least $min_length characters");
+	}
+}
+
+=head2 mixed_case
+
+Make sure the password is mixes case, i.e. not all lower case, nor all upper case
+
+=cut
+sub _check_mixed_case($) {
+	my ($self) = @_;
+
+	# does the password contain at least one lowercase and one uppercase character?
+	unless ($self->{'password'} =~ /(?:[A-Z].*[a-z]|[a-z].*[A-Z])/) {
+		$self->_add_error("Your password must contain a mixture of lower and upper-case letters");
 	}
 }
 
@@ -285,6 +350,7 @@ sub _do_checks($) {
 	# the list of checks to make
 	@checks = qw(
 		length
+		mixed_case
 		silly
 		repeated
 	);
@@ -302,6 +368,20 @@ sub _do_checks($) {
 		}
 		else {
 			Carp::carp("The 'tests' option must be an array-reference. Continuing with default tests.");
+		}
+	}
+
+	# allow the user to override the list of checks
+	# we require the 'tests' option to exist, and to be an array-reference
+	if (exists $self->{'options'}{'append_tests'}) {
+		if (ref($self->{'options'}{'append_tests'}) eq 'ARRAY') {
+			# override the default checks
+			@checks = (@checks, @{ $self->{'options'}{'append_tests'} });
+			# set the custom_checks flag
+			$custom_checks = 1;
+		}
+		else {
+			Carp::carp("The 'append_tests' option must be an array-reference. Continuing with default tests.");
 		}
 	}
 

@@ -1,5 +1,13 @@
 Revision history for Perl extension Password::Check.
 
+0.04 Tue May 12 18:48:26 BST 2004
+    - fixed example in synopsis
+	- added alphanumeric_only and alphanumeric checks
+	- added mixed_case check
+	- added test cases for new checks
+	- added examples directory
+	- added example to show how to write and use your own pasword checks to Data::Password::Check
+	- added append_tests as an option to check()
 
 0.03 Thu Apr  8 12:57:40 BST 2004
 	- renamed package to Data::Password::Check, this fits with the similar
