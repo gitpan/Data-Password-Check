@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 NAME
 
@@ -75,36 +75,36 @@ extra tests (assuming they exist) mytest1 and mytest2.
 
 =cut
 sub check($$) {
-	my ($proto, $options) = @_;
-	my ($self, $class);
+    my ($proto, $options) = @_;
+    my ($self, $class);
 
-	$class = ref($proto) || $proto;
-	$self = {};
-	bless $self, $class;
+    $class = ref($proto) || $proto;
+    $self = {};
+    bless $self, $class;
 
-	# make sure $options is a hash-reference
- 	unless (ref($options) eq 'HASH') {
-		Carp::carp("You need to pass a hash-reference of options to check()");
-		return undef;
-	}
+    # make sure $options is a hash-reference
+    unless (ref($options) eq 'HASH') {
+        Carp::carp("You need to pass a hash-reference of options to check()");
+        return undef;
+    }
 
-	# make sure we at least have a password value
-	unless (exists $options->{'password'}) {
-		Carp::carp("You need to supply a password to check()!");
-		return undef;
-	}
+    # make sure we at least have a password value
+    unless (exists $options->{'password'}) {
+        Carp::carp("You need to supply a password to check()!");
+        return undef;
+    }
 
-	# store the password so it's easier to refer to
-	# (i.e. $self->{'password'} rather than $self->{'options'}{'password'})
-	$self->{'password'} = $options->{'password'};
+    # store the password so it's easier to refer to
+    # (i.e. $self->{'password'} rather than $self->{'options'}{'password'})
+    $self->{'password'} = $options->{'password'};
 
-	# make a copy of the incomong options
-	$self->{'options'} = $options;
+    # make a copy of the incomong options
+    $self->{'options'} = $options;
 
-	# perform the password checks
-	$self->_do_checks;
+    # perform the password checks
+    $self->_do_checks;
 
-	return $self;
+    return $self;
 }
 
 =head2 has_errors($class)
@@ -116,8 +116,8 @@ Returns B<1> if there were errors, B<0> otherwise
 
 =cut
 sub has_errors($) {
-	my ($self) = @_;
-	return (exists $self->{'_error_count'} and $self->{'_error_count'} > 0);
+    my ($self) = @_;
+    return (exists $self->{'_error_count'} and $self->{'_error_count'} > 0);
 }
 
 =head2 error_list($class)
@@ -127,12 +127,12 @@ If there are no errors B<undef> is returned.
 
 =cut
 sub error_list($) {
-	my ($self) = @_;
-	if ($self->has_errors) {
-		return $self->{'_errors'};
-	}
+    my ($self) = @_;
+    if ($self->has_errors) {
+        return $self->{'_errors'};
+    }
 
-	return undef;
+    return undef;
 }
 
 
@@ -156,12 +156,12 @@ Make sure the password only contains a-z, A-Z and 0-9 characters.
 
 =cut
 sub _check_alphanumeric_only($) {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	# make sure the password only contains alphanumeric characters
-	unless ($self->{'password'} =~ /^[[:alnum:]]+$/) {
-		$self->_add_error("Your password may only contain alphanumeric characters (A-Z, a-z and 0-9)");
-	}
+    # make sure the password only contains alphanumeric characters
+    unless ($self->{'password'} =~ /^[[:alnum:]]+$/) {
+        $self->_add_error("Your password may only contain alphanumeric characters (A-Z, a-z and 0-9)");
+    }
 }
 
 =head2 alphanumeric
@@ -170,16 +170,16 @@ Make sure the password contains one of each from the following sets: a-z, A-Z an
 
 =cut
 sub _check_alphanumeric($) {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	# make sure the password contains one lower case and one uppercase character, and one digit - at least
-	# tr// seems the best way (at the moment) to check this requirement
-	unless (
-		($self->{'password'} =~ tr/a-z//) and
-		($self->{'password'} =~ tr/A-Z//) and
-		($self->{'password'} =~ tr/0-9//) ) {
-		$self->_add_error("Your password must contain mixed-case letters and numbers");
-	}
+    # make sure the password contains one lower case and one uppercase character, and one digit - at least
+    # tr// seems the best way (at the moment) to check this requirement
+    unless (
+        ($self->{'password'} =~ tr/a-z//) and
+        ($self->{'password'} =~ tr/A-Z//) and
+        ($self->{'password'} =~ tr/0-9//) ) {
+        $self->_add_error("Your password must contain mixed-case letters and numbers");
+    }
 }
 
 =head2 length
@@ -190,42 +190,42 @@ positive integer.
 
 =cut
 sub _check_length($) {
-	my ($self) = @_;
-	my $min_length = 6;
+    my ($self) = @_;
+    my $min_length = 6;
 
-	# does the user want a different length
-	if (exists $self->{'options'}{'min_length'} and not defined $self->{'options'}{'min_length'}) {
-		# issue a warning
-		Carp::cluck("min_length argument must be a defined value");
-		# return undef
-		return undef;
-	}
-	elsif (exists $self->{'options'}{'min_length'} and defined $self->{'options'}{'min_length'}) {
-		# is it a positive, on-zero, integer?
-		if ($self->{'options'}{'min_length'} =~ /^[1-9]\d*$/) {
-			$min_length = $self->{'options'}{'min_length'};
-		}
-		else {
-			# issue a warning
-			Carp::cluck("min_length argument [$self->{'options'}{'min_length'} isn't a positive, non-zero, integer");
-			# return undef
-			return undef;
-		}
-	}
+    # does the user want a different length
+    if (exists $self->{'options'}{'min_length'} and not defined $self->{'options'}{'min_length'}) {
+        # issue a warning
+        Carp::cluck("min_length argument must be a defined value");
+        # return undef
+        return undef;
+    }
+    elsif (exists $self->{'options'}{'min_length'} and defined $self->{'options'}{'min_length'}) {
+        # is it a positive, on-zero, integer?
+        if ($self->{'options'}{'min_length'} =~ /^[1-9]\d*$/) {
+            $min_length = $self->{'options'}{'min_length'};
+        }
+        else {
+            # issue a warning
+            Carp::cluck("min_length argument [$self->{'options'}{'min_length'} isn't a positive, non-zero, integer");
+            # return undef
+            return undef;
+        }
+    }
 
-	# if password is undefined, set it to '', so we aren't comparing undef with anything 
-	unless (defined $self->{'password'}) {
-		$self->{'password'} = '';
-	}
+    # if password is undefined, set it to '', so we aren't comparing undef with anything 
+    unless (defined $self->{'password'}) {
+        $self->{'password'} = '';
+    }
 
-	# now we can check that the password meets the minimum length requirement
-	if (length($self->{'password'}) >= $min_length) {
-		return 1;
-	}
-	else {
-		# store a failure message
-		$self->_add_error("The password must be at least $min_length characters");
-	}
+    # now we can check that the password meets the minimum length requirement
+    if (length($self->{'password'}) >= $min_length) {
+        return 1;
+    }
+    else {
+        # store a failure message
+        $self->_add_error("The password must be at least $min_length characters");
+    }
 }
 
 =head2 mixed_case
@@ -234,12 +234,12 @@ Make sure the password is mixes case, i.e. not all lower case, nor all upper cas
 
 =cut
 sub _check_mixed_case($) {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	# does the password contain at least one lowercase and one uppercase character?
-	unless ($self->{'password'} =~ /(?:[A-Z].*[a-z]|[a-z].*[A-Z])/) {
-		$self->_add_error("Your password must contain a mixture of lower and upper-case letters");
-	}
+    # does the password contain at least one lowercase and one uppercase character?
+    unless ($self->{'password'} =~ /(?:[A-Z].*[a-z]|[a-z].*[A-Z])/) {
+        $self->_add_error("Your password must contain a mixture of lower and upper-case letters");
+    }
 }
 
 =head2 silly
@@ -254,18 +254,18 @@ If you wish to B<replace> the list of silly-words, you should pass them in via
 the options when calling check(), as 'silly_words'. e.g.
 
   Data::Password::Check->check({
-	...
+    ...
     'silly_words' => [ 'my', 'silly', 'words' ],
-	...
+    ...
   });
 
 If you would like to add words to the existing list, you should pass them in
 via the 'silly_words_append' option when calling check(). e.g.
 
   Data::Password::Check->check({
-	...
+    ...
     'silly_words_append' => [ 'more', 'silly', 'words' ],
-	...
+    ...
   });
 
 All matching is case-insensitive, and if you choose to append words, duplicates
@@ -273,48 +273,48 @@ will be omitted.
 
 =cut
 sub _check_silly($) {
-	my ($self) = @_;
-	# default words we don't want people to use as passwords
-	my @silly_words = qw{
-		password
-		qwerty
-	};
-	# does the user want to REPLACE the current list of words
-	if (exists $self->{'options'}{'silly_words'}) {
-		# is it an array-ref?
-		if (ref($self->{'options'}{'silly_words'}) eq 'ARRAY') {
-			# override the default checks
-			@silly_words = @{ $self->{'options'}{'silly_words'} };
-		}
-		else {
-			Carp::carp("The 'silly_words' option must be an array-reference. Continuing with default list.");
-		}
-	}
+    my ($self) = @_;
+    # default words we don't want people to use as passwords
+    my @silly_words = qw{
+        password
+        qwerty
+    };
+    # does the user want to REPLACE the current list of words
+    if (exists $self->{'options'}{'silly_words'}) {
+        # is it an array-ref?
+        if (ref($self->{'options'}{'silly_words'}) eq 'ARRAY') {
+            # override the default checks
+            @silly_words = @{ $self->{'options'}{'silly_words'} };
+        }
+        else {
+            Carp::carp("The 'silly_words' option must be an array-reference. Continuing with default list.");
+        }
+    }
 
-	# does the user want to ADD to the existing list of word
-	if (exists $self->{'options'}{'silly_words_append'}) {
-		# is it an array-ref?
-		if (ref($self->{'options'}{'silly_words_append'}) eq 'ARRAY') {
-			# push the words onto the end of the list
-			# make sure we don't already have the word
-			foreach my $append (@{ $self->{'options'}{'silly_words_append'} }) {
-				unless ( grep { /^$append$/ } @silly_words ) {
-					push @silly_words, $append;
-				}
-			}
-		}
-		else {
-			Carp::carp("The 'silly_words' option must be an array-reference. Continuing with default list.");
-		}
-	}
+    # does the user want to ADD to the existing list of word
+    if (exists $self->{'options'}{'silly_words_append'}) {
+        # is it an array-ref?
+        if (ref($self->{'options'}{'silly_words_append'}) eq 'ARRAY') {
+            # push the words onto the end of the list
+            # make sure we don't already have the word
+            foreach my $append (@{ $self->{'options'}{'silly_words_append'} }) {
+                unless ( grep { /^$append$/ } @silly_words ) {
+                    push @silly_words, $append;
+                }
+            }
+        }
+        else {
+            Carp::carp("The 'silly_words' option must be an array-reference. Continuing with default list.");
+        }
+    }
 
-	# now we loop through the silly_words and make sure our password doesn't match them
-	foreach my $silly (@silly_words) {
-		# do a case-insensitive match, but look for the whole string
-		if ($self->{'password'} =~ /^$silly$/i) {
-			$self->_add_error("You may not use '$self->{'password'}' as your password");
-		}
-	}
+    # now we loop through the silly_words and make sure our password doesn't match them
+    foreach my $silly (@silly_words) {
+        # do a case-insensitive match, but look for the whole string
+        if ($self->{'password'} =~ /^$silly$/i) {
+            $self->_add_error("You may not use '$self->{'password'}' as your password");
+        }
+    }
 }
 
 =head2 repeated
@@ -323,12 +323,12 @@ Make sure the password isn't a single character repeated, e.g. 'aaaaaaaaaa'.
 
 =cut
 sub _check_repeated($) {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	# is the password made up of the same character repeated?
-	if ($self->{'password'} =~ /^(.)\1+$/) {
-		$self->_add_error("You cannot use a single repeated character as a password");
-	}
+    # is the password made up of the same character repeated?
+    if ($self->{'password'} =~ /^(.)\1+$/) {
+        $self->_add_error("You cannot use a single repeated character as a password");
+    }
 }
 
 
@@ -344,72 +344,72 @@ called within check().
 
 =cut
 sub _do_checks($) {
-	my ($self) = @_;
-	my (@checks, $fn, $custom_checks);
+    my ($self) = @_;
+    my (@checks, $fn, $custom_checks);
 
-	# the list of checks to make
-	@checks = qw(
-		length
-		mixed_case
-		silly
-		repeated
-	);
-	# custom_checks defaults to false
-	$custom_checks = 0;
+    # the list of checks to make
+    @checks = qw(
+        length
+        mixed_case
+        silly
+        repeated
+    );
+    # custom_checks defaults to false
+    $custom_checks = 0;
 
-	# allow the user to override the list of checks
-	# we require the 'tests' option to exist, and to be an array-reference
-	if (exists $self->{'options'}{'tests'}) {
-		if (ref($self->{'options'}{'tests'}) eq 'ARRAY') {
-			# override the default checks
-			@checks = @{ $self->{'options'}{'tests'} };
-			# set the custom_checks flag
-			$custom_checks = 1;
-		}
-		else {
-			Carp::carp("The 'tests' option must be an array-reference. Continuing with default tests.");
-		}
-	}
+    # allow the user to override the list of checks
+    # we require the 'tests' option to exist, and to be an array-reference
+    if (exists $self->{'options'}{'tests'}) {
+        if (ref($self->{'options'}{'tests'}) eq 'ARRAY') {
+            # override the default checks
+            @checks = @{ $self->{'options'}{'tests'} };
+            # set the custom_checks flag
+            $custom_checks = 1;
+        }
+        else {
+            Carp::carp("The 'tests' option must be an array-reference. Continuing with default tests.");
+        }
+    }
 
-	# allow the user to override the list of checks
-	# we require the 'tests' option to exist, and to be an array-reference
-	if (exists $self->{'options'}{'append_tests'}) {
-		if (ref($self->{'options'}{'append_tests'}) eq 'ARRAY') {
-			# override the default checks
-			@checks = (@checks, @{ $self->{'options'}{'append_tests'} });
-			# set the custom_checks flag
-			$custom_checks = 1;
-		}
-		else {
-			Carp::carp("The 'append_tests' option must be an array-reference. Continuing with default tests.");
-		}
-	}
+    # allow the user to override the list of checks
+    # we require the 'tests' option to exist, and to be an array-reference
+    if (exists $self->{'options'}{'append_tests'}) {
+        if (ref($self->{'options'}{'append_tests'}) eq 'ARRAY') {
+            # override the default checks
+            @checks = (@checks, @{ $self->{'options'}{'append_tests'} });
+            # set the custom_checks flag
+            $custom_checks = 1;
+        }
+        else {
+            Carp::carp("The 'append_tests' option must be an array-reference. Continuing with default tests.");
+        }
+    }
 
-	# loop through the checks we would like to do
-	foreach my $test (@checks) {
-		# set the name of the function we'd like to call
-		my $fn = "_check_${test}";
-		# if we can run the function, do so
-		if ($self->can("_check_${test}")) {
-			unless (defined $self->$fn) {
-				# make a note that we skipped the test
-				push @{ $self->{'skipped_tests'} }, $test;
-				Carp::carp("skipped test '$test' due to errors") if $self->{'DEBUG'};
-			};
-		}
-		# otherwise warn that we're trying to call something
-		# that we can't find
-		else {
-			# warn or carp, depending on whether we've got a custom
-			# list of tests
-			if ($custom_checks) {
-				Carp::carp("The are no password checks available for '$test'");
-			}
-			else {
-				warn "no such password check function: $fn()";
-			}
-		}
-	}
+    # loop through the checks we would like to do
+    foreach my $test (@checks) {
+        # set the name of the function we'd like to call
+        my $fn = "_check_${test}";
+        # if we can run the function, do so
+        if ($self->can("_check_${test}")) {
+            unless (defined $self->$fn) {
+                # make a note that we skipped the test
+                push @{ $self->{'skipped_tests'} }, $test;
+                Carp::carp("skipped test '$test' due to errors") if $self->{'DEBUG'};
+            };
+        }
+        # otherwise warn that we're trying to call something
+        # that we can't find
+        else {
+            # warn or carp, depending on whether we've got a custom
+            # list of tests
+            if ($custom_checks) {
+                Carp::carp("The are no password checks available for '$test'");
+            }
+            else {
+                warn "no such password check function: $fn()";
+            }
+        }
+    }
 }
 
 =head2 _add_error($class,$message)
@@ -419,13 +419,13 @@ The errors can later be retrieved using the B<error_list()> method.
 
 =cut
 sub _add_error($$) {
-	my ($self, $message) = @_;
+    my ($self, $message) = @_;
 
-	# increase the count of errors we've added
-	$self->{'_error_count'} ++;
+    # increase the count of errors we've added
+    $self->{'_error_count'} ++;
 
-	# add the error message to a list of messages
-	push @{ $self->{'_errors'} }, $message;
+    # add the error message to a list of messages
+    push @{ $self->{'_errors'} }, $message;
 }
 
 =head2 _skipped_test($class,$testname)
@@ -439,18 +439,18 @@ installing the module.
 
 =cut
 sub _skipped_test($$) {
-	my ($self, $testname) = @_;
+    my ($self, $testname) = @_;
 
-	# do we have a list of skipped tests?
-	if (exists $self->{'skipped_tests'}) {
-		# does $testname exist in the list?
-		if (grep { /^$testname$/ } @{ $self->{'skipped_tests'} }) {
-			return 1;
-		}
-	}
+    # do we have a list of skipped tests?
+    if (exists $self->{'skipped_tests'}) {
+        # does $testname exist in the list?
+        if (grep { /^$testname$/ } @{ $self->{'skipped_tests'} }) {
+            return 1;
+        }
+    }
 
-	# no indication that we skipped the test
-	return 0;
+    # no indication that we skipped the test
+    return 0;
 }
 
 =head1 AUTHOR
@@ -459,7 +459,7 @@ Chisel Wright, E<lt>chisel@herlpacker.co.ukE<gt>
 
 =head1 COPYRIGHT AND LICENCE
 
-Copyright (C) 2004 by Chisel Wright
+Copyright (C) 2005 by Chisel Wright
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.2 or,
@@ -469,3 +469,6 @@ at your option, any later version of Perl 5 you may have available.
 
 # be true
 1;
+
+__END__
+vim: ts=8 sts=4 et sw=4 sr sta

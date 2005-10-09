@@ -1,4 +1,4 @@
-Data-Password-Check version 0.03
+Data-Password-Check version 0.04
 ===========================
 
 NAME
@@ -25,7 +25,7 @@ SYNOPSIS
       if ($pwcheck->has_errors) {
         # print the errors
           print(
-           join("\n", @{ $result->error_list }),
+           join("\n", @{ $pwcheck->error_list }),
            "\n"
           );
       }
@@ -42,7 +42,22 @@ PUBLIC METHODS
       $result = Data::Password::Check->check({'password' => $pwd_to_check});
 
     There are other options that may be passed to invoke further password
-    tests if required.
+    tests if required:
+
+    * tests
+        set this to a list of test names to replace the list of tests
+        performed by the module
+
+        e.g. tests => [ 'length' ] will make the module perfoem the length
+        check only
+
+    * tests_append
+        set this to a list of additional tests to perform. This is useful if
+        you want to call more tests than are in the default list, or to
+        include your own tests when inheriting from this module.
+
+        e.g. test => [ 'mytest1', 'mytest2' ] will make the module perform
+        two extra tests (assuming they exist) mytest1 and mytest2.
 
   has_errors($class)
     This function is used to determine if there were any errors found while
@@ -66,10 +81,21 @@ AVAILABLE CHECKS
         ...
       });
 
+  alphanumeric_only
+    Make sure the password only contains a-z, A-Z and 0-9 characters.
+
+  alphanumeric
+    Make sure the password contains one of each from the following sets:
+    a-z, A-Z and 0-9
+
   length
     Make sure the password it at least 6 characters long. If min_length was
     passed as an option to check(), this value will be used instead,
     assuming it's a positive integer.
+
+  mixed_case
+    Make sure the password is mixes case, i.e. not all lower case, nor all
+    upper case
 
   silly
     Make sure the password isn't a known silly word (e.g 'password' is a bad
@@ -115,6 +141,13 @@ PRIVATE METHODS
     This function is used to add an error message to the internal store. The
     errors can later be retrieved using the error_list() method.
 
+  _skipped_test($class,$testname)
+    This function exists so that it's possible to work out if a test was
+    skipped because "something went wrong" - usually because of an invalid
+    option passed in via the check() options.
+
+    This function was written to enable some tests in the "make test" phase
+    of installing the module.
 
 INSTALLATION
 
