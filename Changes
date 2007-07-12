@@ -1,5 +1,18 @@
 Revision history for Perl extension Password::Check.
 
+0.08 Thu Jul 12 10:26:53 BST 2007
+	- fixed MANIFEST to prevent "Warning: the following files are missing in
+	  your kit:" error
+
+0.07 Wed Jul 11 17:15:59 BST 2007
+	- fixed up borked mix-up of Data::Dump/Data::Dumper in the
+	  diverse_characters test
+
+0.06 Wed Jul 11 12:14:36 BST 2007
+	- added diverse_characters (from: Dermot McNally)
+	- added tests for diverse_characters
+	- modified POD: author email changed, added CONTRIBUTORS and PROJECT HOMEPAGE
+
 0.05 Sun Oct  9 17:54:12 BST 2005
     - fixed test cases that don't appear to be working
     - 'retabbed' Check.pm file

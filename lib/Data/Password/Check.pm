@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.05';
+our $VERSION = '0.08';
 
 =head1 NAME
 
@@ -242,6 +242,50 @@ sub _check_mixed_case($) {
     }
 }
 
+=head2 diverse_characters
+
+Make sure the password is contains a diversity of character group types
+(uppercase, lower case, digits, symbols). By default, at least one character
+group must be present in the password (which any password will satisfy -
+override this to invoke the test). If B<diversity_required> was passed
+as an option to check(), this value will be used instead.
+
+=cut
+sub _check_diverse_characters($) {
+    my ($self) = @_;
+    my $diversity_required = 1;
+    # does the user want a different diversity?
+    if (exists $self->{'options'}{'diversity_required'} and not defined $self->{'options'}{'diversity_required'}) {
+        # issue a warning
+        Carp::cluck("diversity_required argument must be a defined value");
+        return undef;
+    }
+    elsif (exists $self->{'options'}{'diversity_required'} and defined $self->{'options'}{'diversity_required'}) {
+        # is it in range?
+        if ($self->{'options'}{'diversity_required'} =~ /^[1-4]\d*$/) {
+            $diversity_required = $self->{'options'}{'diversity_required'};
+        }
+        else {
+            # issue a warning
+            Carp::cluck("diversity_required argument [$self->{'options'}{'diversity_required'} isn't in the range 1-4");
+            return undef;
+        }
+    }
+    
+    my $group_count = 0;
+    foreach my $pattern (qw([A-Z] [a-z] [0-9] [^A-Za-z0-9]))
+    {
+        if ($self->{'password'} =~ /$pattern/) {
+            $group_count++;
+        }
+    }
+    
+    # Are enough character groups used to satisfy diversity requirements?
+    if ($group_count < $diversity_required) {
+        $self->_add_error("Your password must contain a good mix of character types, from at least $diversity_required of the following categories: Uppercase letters, lowercase letters, numeral, symbols.");
+    }
+}
+
 =head2 silly
 
 Make sure the password isn't a known silly word (e.g 'password' is a bad choice
@@ -455,11 +499,20 @@ sub _skipped_test($$) {
 
 =head1 AUTHOR
 
-Chisel Wright, E<lt>chisel@herlpacker.co.ukE<gt>
+Chisel Wright C<< <chiselwright@berlios.de> >>
+
+=head1 CONTRIBUTORS
+
+Dermot McNally C<< CPANID: DERMOT >>
+
+=head1 PROJECT HOMEPAGE
+
+This project can be found at BerliOS:
+L<http://developer.berlios.de/projects/d-p-check/>
 
 =head1 COPYRIGHT AND LICENCE
 
-Copyright (C) 2005 by Chisel Wright
+Copyright (C) 2005-2007 by Chisel Wright
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.2 or,
